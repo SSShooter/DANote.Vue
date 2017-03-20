@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<link rel="stylesheet" type="text/css" href="../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/style.css" />
+		<link rel="stylesheet" type="text/css" href="../css/mystyle.css" />
+		<style>
+			header {
+				position: fixed;
+				z-index: 999;
+			}
+			.item {
+				width: calc(100vw - 20px);
+				height: 50px;
+				position: relative;
+				border-bottom: 1px #ccc solid;
+				padding: 10px;
+			}
+			.item > .title {
+				line-height: 50px;
+				font-size: 25px;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				overflow: hidden;
+				width: 90%;
+			}
+			.item > .modify_date {
+				font-size: 10px;
+				position: absolute;
+				right: 10px;
+				bottom: 5px;
+			}
+			#main {
+				position: relative;
+				top: 69px;
+			}
+			.tap {
+				background-color: #EEEEEE;
+			}
+			.button_tap {
+				color: #6f6f6f;
+			}
+		</style>
+	</head>
+	<body>
+		<header>
+			<div class="header">
+				disannoy
+			</div>
+			<div id="back" tapmode="button_tap" class="button_l" onclick="api.closeWin()">
+				back
+			</div>
+		</header>
+		<div id="main">
+			<div v-for="item in items" class="item" tapmode="tap" :data-id="item.id" @click="readNote">
+				<div class="title">
+					{{item.title}}
+				</div>
+				<div class="modify_date">
+					{{item.modify_date}}
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/indexeddb.js"></script>
+	<script type="text/javascript" src="../script/vue.js"></script>
+	<script type="text/javascript" src="../script/velocity.min.js"></script>
+	<script type="text/javascript">
+		apiready = function() {
+			$api.fixStatusBar($api.dom('header'));
+		};
+		var vm = new Vue({
+			el : '#main',
+			data : {
+				items : []
+			},
+			mounted : function() {
+				setTimeout(this.getFolderContent, 100);
+			},
+			methods : {
+				getFolderContent:function(){
+					var that = this;
+					getDataBySearch(api.pageParam.id, function(rowdata) {
+						that.items = rowdata.data;
+						api.parseTapmode();
+					});
+				},
+				readNote : function(e) {
+					var id = e.currentTarget.dataset.id;
+					var title = e.currentTarget.childNodes[0].innerHTML;
+					api.openWin({
+						name : 'read',
+						url : 'w_read.html',
+						pageParam : {
+							id : id,
+							title : title
+						}
+					});
+				},
+			}
+		});
+	</script>
+</html>

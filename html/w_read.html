@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<link rel="stylesheet" type="text/css" href="../css/mystyle.css" />
+		<link rel="stylesheet" type="text/css" href="../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/animate.css" />
+		<style>
+			.header {
+				width: 65vw;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				overflow: hidden;
+			}
+			.tap {
+				color: #6f6f6f;
+			}
+		</style>
+	</head>
+	<body>
+		<header>
+			<div id="back" tapmode="tap" class="button_l" onclick="api.closeWin()">
+				back
+			</div>
+			<transition
+				enter-active-class="animated fadeIn"
+				leave-active-class="animated fadeOut"
+			>
+				<div v-if="Switch" key="answer" tapmode="tap" class="button_r" @click="answer">
+					answer
+				</div>
+				<div else key="save" tapmode="tap" class="button_r" @click="save">
+					save
+				</div>
+			</transition>
+			<div class="header">{{title}}</div>
+		</header>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/vue.js"></script>
+	<script type="text/javascript" src="../script/indexeddb.js"></script>
+	<script type="text/javascript">
+		apiready = function() {
+			$api.fixStatusBar($api.dom('header'));
+			var id = api.pageParam.id;
+			var title = api.pageParam.title;
+			api.openFrame({
+				name : 'readFile',
+				url : './f_readFile.html',
+				rect : {
+					x : 0,
+					y : $api.dom('header').offsetHeight
+				},
+				pageParam : {
+					id : id
+				}
+			});
+			document.getElementsByClassName('header')[0].innerHTML = title;
+		};
+		var readingPage = new Vue({
+			el:'header',
+			data:{
+				Switch:true,
+				title:''
+			},
+			methods:{
+				answer:function(){
+					this.Switch = !this.Switch;
+					api.execScript({
+					frameName : 'readFile',
+						script : 'app.answer()'
+					});
+				},
+				save:function(){
+					this.Switch = !this.Switch;
+					api.execScript({
+						frameName : 'readFile',
+						script : 'app.save()'
+					});
+				}
+			}
+		});
+	</script>
+</html>

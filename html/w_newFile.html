@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<link rel="stylesheet" type="text/css" href="../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/mystyle.css" />
+		<style>
+			input, textarea {
+				box-sizing: border-box;
+			}
+			#main {
+				box-sizing: border-box;
+				padding: 0 20px;
+			}
+			input {
+				border-radius: 0;
+				border-bottom: #363636 1px solid;
+				width: 100%;
+				height: 35px;
+				line-height: 35px;
+				font-size: 25px;
+				padding: 30px 15px;
+			}
+			textarea {
+				width: 100%;
+				height: calc(100vh - 195px);
+				line-height: 20px;
+				font-size: 16px;
+				padding: 20px;
+				resize: none;
+			}
+			.tap {
+				color: #6f6f6f;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app" v-cloak>
+			<header>
+				<div id="back" tapmode="tap" onclick="api.closeWin()" class="button_l">
+					back
+				</div>
+				<div id="save" tapmode="tap" @click="save" class="button_r">
+					save
+				</div>
+				<div class="header">
+					new diary
+				</div>
+			</header>
+			<div id="main">
+				<input placeholder="Title" v-model="title"/>
+				<hr />
+				<span>{{city}}</span>
+				<span>{{weather}}</span>
+				<span>{{temperature}}</span>
+				<textarea placeholder="Have an inspiration?" v-model="content"></textarea>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery.js"></script>
+	<script type="text/javascript" src="../script/vue.js"></script>
+	<script type="text/javascript" src="../script/velocity.min.js"></script>
+	<script type="text/javascript" src="../script/indexeddb.js"></script>
+	<script type="text/javascript" src="../script/upload.js"></script>
+	<script type="text/javascript">
+		apiready = function() {
+			$api.fixStatusBar($api.dom('header'));
+			var app = new Vue({
+				el : '#app',
+				data : {
+					title : '',
+					content : '',
+					lat : '',
+					lng : '',
+					city:'',
+					temperature:'',
+					weather:''
+				},
+				mounted : function() {
+					this.getLocation();
+				},
+				methods : {
+					save : function() {
+						var that = this;
+						if (this.title) {
+							var content;
+							if (!this.content)
+								content = 'There \'s nothing left here';
+							else
+								content = this.content.replace(/\r/ig, "<br/>").replace(/\n/ig, "<br/>");
+							var modify_date = getNowFormatDate(), create_date = api.pageParam.create_date, year = create_date.substring(0, 4), month = create_date.substring(5, 7), folder = year + "" + month;
+							var timestamp = new Date().getTime();
+							var save_contents = [{
+								content : content,
+								modify_date : modify_date
+							}];
+							var data = {
+								id : "id" + timestamp,
+								create_date : create_date,
+								modify_date : modify_date,
+								content : save_contents,
+								title : this.title,
+								folder : folder
+							};
+							addData(data, function() {
+								api.execScript({
+									name : 'root',
+									frameName : "f_home",
+									script : 'location.reload();'
+								});
+								api.closeWin();
+							});
+							addToUpload("id" + timestamp);
+						} else {
+							api.toast({
+								msg : 'Title field is required'
+							});
+						}
+					},
+					getLocation : function() {
+						var that = this;
+						var baiduLocation = api.require('baiduLocation');
+						baiduLocation.getLocation(function(ret, err) {
+							if (ret) {
+								that.lat = ret.latitude;
+								that.lng = ret.longitude;
+								api.ajax({
+									url : 'https://api.thinkpage.cn/v3/weather/now.json',
+									method : 'get',
+									data : {
+										values : {
+											key:'h2n2drvn9v0aolpu',
+											location:that.lat+':'+that.lng
+										}
+									},
+								}, function(ret, err) {
+									if (ret) {
+										console.log(JSON.stringify(ret));
+										app.city = ret.results[0].location.name;
+										app.weather = ret.results[0].now.text;
+										app.temperature = ret.results[0].now.temperature + '°C';
+									} else {
+										console.log(JSON.stringify(err));
+									}
+								});
+							} else {
+								alert(JSON.stringify(err));
+							}
+						});
+					}
+				}
+			});
+		};
+	</script>
+</html>

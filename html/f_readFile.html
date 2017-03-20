@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<link rel="stylesheet" type="text/css" href="../css/mystyle.css" />
+		<link rel="stylesheet" type="text/css" href="../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/animate.css" />
+		<style>
+			#app {
+				box-sizing: border-box;
+				margin: 10px 22px 35px 22px;
+				padding-bottom: 150px;
+			}
+			.item {
+				width: 100%;
+				line-height: 30px;
+				font-size: 20px;
+			}
+			textarea {
+				position: fixed;
+				bottom: 0;
+				left: 0;
+				box-sizing: border-box;
+				width: 100%;
+				height: 150px;
+				padding: 20px 35px;
+				line-height: 20px;
+				font-size: 20px;
+				border-top: #363636 1px solid;
+				border-radius:0;
+				background-color: #fff;
+				resize: none;
+			}
+			.date {
+				float: right;
+				color: #CCCCCC;
+				font-size: 16px;
+				margin-bottom: 20px;
+			}
+			.content {
+				margin-bottom: 10px;
+				word-wrap:break-word;
+				clear: both;
+			}
+			.tap {
+				color: #6f6f6f;
+			}
+			.itemtap {
+				background-color: #6f6f6f;
+			}
+			.itemlist-enter-active, .itemlist-leave-active {
+			  transition: all .3s;
+			}
+			.itemlist-enter, .itemlist-leave-active {
+			  opacity: 0;
+			}
+			[v-cloak] {
+			  display: none;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app" v-cloak>
+			<transition-group
+			name="itemlist"
+			tag="div"
+			>
+				<div class="item" v-for="(item,index) in noteContent" :key="item.modify_date" tapmode="itemtap" :data-index="index" v-finger:long-tap="longTap.bind(this,index)">
+					<div class="content" v-html="item.content"></div>
+					<div class="date">
+						{{item.modify_date}}
+					</div>
+				</div>
+			</transition-group>
+			<transition
+			enter-active-class="animated fadeInDown"
+			leave-active-class="animated fadeOutDown"
+			>
+				<textarea placeholder="Brand new idea" id="new_con" v-show="showAnswerInput" v-model="newNoteContent"></textarea>
+			</transition>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/vue.js"></script>
+	<script type="text/javascript" src="../script/alloy_finger.js"></script>
+	<script type="text/javascript" src="../script/alloy_finger.vue.js"></script>
+	<script type="text/javascript" src="../script/indexeddb.js"></script>
+	<script type="text/javascript" src="../script/upload.js"></script>
+	<script type="text/javascript">
+		Vue.use(AlloyFingerVue);
+		var app = new Vue({
+			el : '#app',
+			data : {
+				id : '',
+				showAnswerInput : false,
+				noteContent : [],
+				newNoteContent : ''
+			},
+			mounted : function() {
+				setTimeout('app.read()', 100);
+			},
+			methods : {
+				longTap:function(index){
+					api.confirm({
+					    title: 'Sure to delete it?',
+					    msg: 'unrecoverable',
+					    buttons: ['yes', 'no']
+					}, function(ret, err) {
+					    var btnindex = ret.buttonIndex;
+					    if(btnindex===1){
+							app.noteContent.splice(index,1);
+							var update = {
+								content : app.noteContent,
+								modify_date : getNowFormatDate()
+							};
+							updateData(app.id, update);
+						}
+					});
+				},
+				read : function() {
+					var that = this;
+					this.id = api.pageParam.id;
+					getDataById(this.id, function(ret) {
+						var data = ret.data;
+						that.noteContent = data.content;
+					});
+				},
+				answer : function() {
+					this.showAnswerInput = true;
+				},
+				save : function() {
+					this.showAnswerInput = false;
+					if (this.newNoteContent) {
+						var content = this.newNoteContent.replace(/\r/ig, "<br/>").replace(/\n/ig, "<br/>");
+						var save_contents = {
+							content : content,
+							modify_date : getNowFormatDate()
+						};
+						app.noteContent.push(save_contents);
+						var update = {
+							content : app.noteContent,
+							modify_date : getNowFormatDate()
+						};
+						updateData(this.id, update);
+						this.newNoteContent = '';
+						addToUpload(this.id);
+					}
+				}
+			}
+		});
+	</script>
+</html>
