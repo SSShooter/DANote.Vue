@@ -67,7 +67,9 @@
 			name="itemlist"
 			tag="div"
 			>
-				<div class="item" v-for="(item,index) in noteContent" :key="item.modify_date" tapmode="itemtap" :data-index="index" v-finger:long-tap="longTap.bind(this,index)">
+				<div class="item" v-for="(item,index) in noteContent" :key="item.modify_date" 
+				tapmode="itemtap" :data-index="index" 
+				@touchstart="longTap(index)" @touchend="touchend" @touchmove="touchmove">
 					<div class="content" v-html="item.content"></div>
 					<div class="date">
 						{{item.modify_date}}
@@ -103,6 +105,7 @@
 			},
 			methods : {
 				longTap:function(index){
+				longTapTimeout = setTimeout(function(index) {
 					api.confirm({
 					    title: 'Sure to delete it?',
 					    msg: 'unrecoverable',
@@ -118,6 +121,13 @@
 							updateData(app.id, update);
 						}
 					});
+					}, 750 ,index);
+				},
+				touchmove:function(){
+					clearTimeout(longTapTimeout);
+				},
+				touchend : function() {
+					clearTimeout(longTapTimeout);
 				},
 				read : function() {
 					var that = this;

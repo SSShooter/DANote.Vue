@@ -7,8 +7,8 @@
 		<link rel="stylesheet" type="text/css" href="../css/animate.css" />
 		<link rel="stylesheet" type="text/css" href="../css/api.css"/>
 		<style>
-			#main_list,#month_list{
-				position:absolute;
+			#main_list, #month_list {
+				position: absolute;
 			}
 			.item, .m_item {
 				width: calc(100vw - 20px);
@@ -36,19 +36,23 @@
 			.tap {
 				background-color: #eee;
 			}
-			#main_list,#month_list {
-			  -webkit-animation-duration: 1s;
+			#main_list, #month_list {
+				-webkit-animation-duration: 1s;
+			}
+			[v-cloak] {
+				display: none;
 			}
 		</style>
 	</head>
 	<body>
-		<div id="app">
+		<div id="app" v-cloak>
 			<transition
 			enter-active-class="animated fadeInLeft"
 			leave-active-class="animated fadeOutRight"
 			>
 				<div id="main_list" v-show="listSwitch">
-					<div v-for="item in items" class="item" tapmode="tap" :data-id="item.id" @click="readNote">
+					<div class="item" v-for="(item,index) in items" tapmode="tap" :data-id="item.id"
+					@click="readNote" @touchstart="longTap(index,item.id)" @touchend="touchend" @touchmove="touchmove">
 						<div class="title">
 							{{item.title}}
 						</div>
@@ -92,12 +96,40 @@
 					}
 				});
 			},
+			watch:{
+				items:function(){
+					console.log('items changed');
+					api.parseTapmode();
+				}
+			},
 			methods : {
+				longTap : function(index,id) {
+					longTapTimeout = setTimeout(function(index,id) {
+						api.confirm({
+							title : 'Sure to delete it?',
+							msg : 'unrecoverable',
+							buttons : ['yes', 'no']
+						}, function(ret, err) {
+							var btnindex = ret.buttonIndex;
+							if (btnindex === 1) {
+								app.items.splice(index, 1);
+								deleteData(id);
+							}
+						});
+					}, 750 ,index,id);
+				},
+				touchmove:function(){
+					clearTimeout(longTapTimeout);
+				},
+				touchend : function() {
+					clearTimeout(longTapTimeout);
+				},
 				getAllList : function() {
 					this.listSwitch = true;
 					var that = this;
 					getDataAll(function(rowdata) {
 						that.items = rowdata.data;
+						console.log('赋值');
 					});
 				},
 				getMonthList : function() {
@@ -118,7 +150,6 @@
 							})(i, temp_m)
 						}
 					}
-//					api.parseTapmode();
 				},
 				readNote : function(e) {
 					var id = e.currentTarget.dataset.id;
@@ -144,63 +175,63 @@
 				}
 			}
 		});
-//		apiready = function() {
-//			api.setRefreshHeaderInfo({
-//				visible : true,
-//				loadingImg : 'widget://image/refresh.png',
-//				bgColor : '#ccc',
-//				textColor : '#fff',
-//				textDown : '下拉同步...',
-//				textUp : '松开同步...',
-//				showTime : true
-//			}, function(ret, err) {
-//				//在这里从服务器加载数据，加载完成后调用api.refreshHeaderLoadDone()方法恢复组件到默认状态
-//				var model = api.require("model");
-//				model.config({
-//					appKey : '3E57B561-7909-7C03-A8A1-4B7E402B80D9',
-//					host : 'https://d.apicloud.com'
-//				});
-//				uploadData(function(diary_id) {
-//					getDataById(diary_id, function(ret) {
-//						var diary_id = ret.data.id;
-//						var diary_data = JSON.stringify(ret.data);
-//						if (!ret.data.dbid) {
-//							model.insert({
-//								class : "diary",
-//								value : {
-//									"diary_id" : diary_id,
-//									"diary_data" : diary_data
-//								}
-//							}//测试
-//							, function(ret, err) {
-//								var dbid = ret.id;
-//								updateData(diary_id, {
-//									dbid : dbid
-//								});
-//								alert("ret: " + JSON.stringify(ret) + "\nerr: " + JSON.stringify(err));
-//							});
-//						} else {
-//							model.updateById({
-//								class : "diary",
-//								id : ret.data.dbid,
-//								value : {
-//									"diary_data" : diary_data
-//								}
-//							}, function(ret, err) {
-//								if (ret) {
-//									alert(JSON.stringify(ret));
-//								} else {
-//									alert(JSON.stringify(err));
-//								}
-//							});
-//						}
-//						api.toast({
-//							msg : '同步完成'
-//						});
-//					});
-//				})
-//				api.refreshHeaderLoadDone();
-//			});
-//		}
+		//		apiready = function() {
+		//			api.setRefreshHeaderInfo({
+		//				visible : true,
+		//				loadingImg : 'widget://image/refresh.png',
+		//				bgColor : '#ccc',
+		//				textColor : '#fff',
+		//				textDown : '下拉同步...',
+		//				textUp : '松开同步...',
+		//				showTime : true
+		//			}, function(ret, err) {
+		//				//在这里从服务器加载数据，加载完成后调用api.refreshHeaderLoadDone()方法恢复组件到默认状态
+		//				var model = api.require("model");
+		//				model.config({
+		//					appKey : '3E57B561-7909-7C03-A8A1-4B7E402B80D9',
+		//					host : 'https://d.apicloud.com'
+		//				});
+		//				uploadData(function(diary_id) {
+		//					getDataById(diary_id, function(ret) {
+		//						var diary_id = ret.data.id;
+		//						var diary_data = JSON.stringify(ret.data);
+		//						if (!ret.data.dbid) {
+		//							model.insert({
+		//								class : "diary",
+		//								value : {
+		//									"diary_id" : diary_id,
+		//									"diary_data" : diary_data
+		//								}
+		//							}//测试
+		//							, function(ret, err) {
+		//								var dbid = ret.id;
+		//								updateData(diary_id, {
+		//									dbid : dbid
+		//								});
+		//								alert("ret: " + JSON.stringify(ret) + "\nerr: " + JSON.stringify(err));
+		//							});
+		//						} else {
+		//							model.updateById({
+		//								class : "diary",
+		//								id : ret.data.dbid,
+		//								value : {
+		//									"diary_data" : diary_data
+		//								}
+		//							}, function(ret, err) {
+		//								if (ret) {
+		//									alert(JSON.stringify(ret));
+		//								} else {
+		//									alert(JSON.stringify(err));
+		//								}
+		//							});
+		//						}
+		//						api.toast({
+		//							msg : '同步完成'
+		//						});
+		//					});
+		//				})
+		//				api.refreshHeaderLoadDone();
+		//			});
+		//		}
 	</script>
 </html>

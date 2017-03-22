@@ -97,12 +97,12 @@ function deleteData(id, cb) {
 		console.dir(event)
 	};
 	var objectStore = transaction.objectStore("diary");
-	var request = objectStore.delete(parseInt(id));
+	var request = objectStore.delete(id);
 	request.onsuccess = function(e) {
 		if (cb) {
 			cb({
 				error : 0,
-				data : parseInt(id)
+				data : id
 			})
 		}
 	};

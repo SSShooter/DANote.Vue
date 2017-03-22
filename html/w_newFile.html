@@ -23,16 +23,29 @@
 				font-size: 25px;
 				padding: 30px 15px;
 			}
+			#state {
+				margin-top: 5px;
+				margin-left:5px;
+				height: 20px;
+				line-height: 20px;
+				color:#ccc;
+			}
 			textarea {
 				width: 100%;
 				height: calc(100vh - 195px);
 				line-height: 20px;
 				font-size: 16px;
-				padding: 20px;
+				padding: 10px 20px 20px 20px;
 				resize: none;
 			}
 			.tap {
 				color: #6f6f6f;
+			}
+			.itemlist-enter-active, .itemlist-leave-active {
+				transition: all .3s;
+			}
+			.itemlist-enter, .itemlist-leave-active {
+				opacity: 0;
 			}
 		</style>
 	</head>
@@ -52,9 +65,18 @@
 			<div id="main">
 				<input placeholder="Title" v-model="title"/>
 				<hr />
-				<span>{{city}}</span>
-				<span>{{weather}}</span>
-				<span>{{temperature}}</span>
+				<div id="state">
+					<transition
+					name="itemlist"
+					tag="div"
+					>
+						<div v-show="ajaxComplete">
+							<span>{{city}}</span>
+							<span>{{weather}}</span>
+							<span>{{temperature}}</span>
+						</div>
+					</transition>
+				</div>
 				<textarea placeholder="Have an inspiration?" v-model="content"></textarea>
 			</div>
 		</div>
@@ -75,9 +97,10 @@
 					content : '',
 					lat : '',
 					lng : '',
-					city:'',
-					temperature:'',
-					weather:''
+					city : '',
+					temperature : '',
+					weather : '',
+					ajaxComplete : false
 				},
 				mounted : function() {
 					this.getLocation();
@@ -132,8 +155,8 @@
 									method : 'get',
 									data : {
 										values : {
-											key:'h2n2drvn9v0aolpu',
-											location:that.lat+':'+that.lng
+											key : 'h2n2drvn9v0aolpu',
+											location : that.lat + ':' + that.lng
 										}
 									},
 								}, function(ret, err) {
@@ -142,6 +165,7 @@
 										app.city = ret.results[0].location.name;
 										app.weather = ret.results[0].now.text;
 										app.temperature = ret.results[0].now.temperature + '°C';
+										app.ajaxComplete = true;
 									} else {
 										console.log(JSON.stringify(err));
 									}
