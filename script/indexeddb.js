@@ -35,8 +35,35 @@ function closeDB() {
 //删除
 function deleteDB() {
 	indexedDB.deleteDatabase('disannoy');
+	db_obj.close();
+	console.log('del');
 }
-
+function deleteObjectStore(id, cb) {
+	var transaction = db_obj.transaction("diary", 'readwrite');
+	transaction.oncomplete = function() {
+		console.log("transaction complete");
+	};
+	transaction.onerror = function(event) {
+		console.dir(event)
+	};
+	var objectStore = transaction.objectStore("diary");
+	var request = objectStore.clear();
+	request.onsuccess = function(e) {
+		if (cb) {
+			cb({
+				error : 0,
+				data : id
+			})
+		}
+	};
+	request.onerror = function(e) {
+		if (cb) {
+			cb({
+				error : 1
+			})
+		}
+	}
+}
 //添加一条数据
 function addData(data, cb) {
 	var transaction = db_obj.transaction("diary", 'readwrite');
@@ -200,7 +227,6 @@ function getDataAll(cb) {
 				});
 				return;
 			}
-			//			rowData.push(cursor.value);
 			rowData.unshift(cursor.value);
 			cursor.continue();
 		};
@@ -279,7 +305,7 @@ function getFirstCreateDate(cb) {
 		var rowData;
 		objectStore.index("folder").openCursor(IDBKeyRange.lowerBound(0)).onsuccess = function(event) {
 			var cursor = event.target.result;
-			if (cb) {
+			if (cursor && cb) {
 				cb({
 					error : 0,
 					data : cursor.value

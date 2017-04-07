@@ -34,15 +34,14 @@
 			<div id="new" tapmode="tap" class="button_r" @click="newFile">
 				new
 			</div>
-			<div class="header">
-				disannoy
+			<div class="header" @click="jumpToSetting">
+				DA-note
 			</div>
 		</header>
 	</body>
 </html>
 <script type="text/javascript" src="../script/api.js"></script>
 <script type="text/javascript" src="../script/vue.js"></script>
-<script type="text/javascript" src="../script/velocity.min.js"></script>
 <script type="text/javascript" src="../script/indexeddb.js"></script>
 <script type="text/javascript">
 	apiready = function() {
@@ -88,22 +87,13 @@
 						create_date : getNowFormatDate()//创建时间
 					}
 				});
+			},
+			jumpToSetting:function(){
+				api.openWin({
+					name : 'setting',
+					url : 'w_setting.html'
+				});
 			}
 		}
 	});
-	function getNowFormatDate() {
-		var date = new Date();
-		var seperator1 = "-";
-		var seperator2 = ":";
-		var month = date.getMonth() + 1;
-		var strDate = date.getDate();
-		if (month >= 1 && month <= 9) {
-			month = "0" + month;
-		}
-		if (strDate >= 0 && strDate <= 9) {
-			strDate = "0" + strDate;
-		}
-		var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate + " " + date.getHours() + seperator2 + date.getMinutes() + seperator2 + date.getSeconds();
-		return currentdate;
-	}
 </script>

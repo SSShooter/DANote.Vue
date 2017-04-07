@@ -126,7 +126,10 @@
 								modify_date : modify_date,
 								content : save_contents,
 								title : this.title,
-								folder : folder
+								folder : folder,
+								city : this.city,
+								weather : this.weather,
+								temperature : this.temperature
 							};
 							addData(data, function() {
 								api.execScript({

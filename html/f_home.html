@@ -103,6 +103,9 @@
 				}
 			},
 			methods : {
+				empty :function(){
+					this.items = [];
+				},
 				longTap : function(index,id) {
 					longTapTimeout = setTimeout(function(index,id) {
 						api.confirm({

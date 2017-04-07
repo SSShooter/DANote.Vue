@@ -18,6 +18,10 @@
 				line-height: 30px;
 				font-size: 20px;
 			}
+			span {
+				color:#6F6F6F;
+				padding-bottom: 5px;
+			}
 			textarea {
 				position: fixed;
 				bottom: 0;
@@ -63,6 +67,9 @@
 	</head>
 	<body>
 		<div id="app" v-cloak>
+			<span>{{city}}</span>
+			<span>{{weather}}</span>
+			<span>{{temperature}}</span>
 			<transition-group
 			name="itemlist"
 			tag="div"
@@ -86,19 +93,19 @@
 	</body>
 	<script type="text/javascript" src="../script/api.js"></script>
 	<script type="text/javascript" src="../script/vue.js"></script>
-	<script type="text/javascript" src="../script/alloy_finger.js"></script>
-	<script type="text/javascript" src="../script/alloy_finger.vue.js"></script>
 	<script type="text/javascript" src="../script/indexeddb.js"></script>
 	<script type="text/javascript" src="../script/upload.js"></script>
 	<script type="text/javascript">
-		Vue.use(AlloyFingerVue);
 		var app = new Vue({
 			el : '#app',
 			data : {
 				id : '',
 				showAnswerInput : false,
 				noteContent : [],
-				newNoteContent : ''
+				newNoteContent : '',
+				city : '',
+				weather : '',
+				temperature : ''
 			},
 			mounted : function() {
 				setTimeout('app.read()', 100);
@@ -135,6 +142,9 @@
 					getDataById(this.id, function(ret) {
 						var data = ret.data;
 						that.noteContent = data.content;
+						that.city = data.city,
+						that.weather = data.weather,
+						that.temperature = data.temperature
 					});
 				},
 				answer : function() {

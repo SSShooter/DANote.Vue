@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>setting</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/mystyle.css" />
+		<link rel="stylesheet" type="text/css" href="../icon/iconfont.css">
+		<style>
+			.item {
+				height: 60px;
+				line-height: 50px;
+				font-size: 20px;
+				box-sizing: border-box;
+				padding: 5px 15px;
+				border-bottom: 1px #6F6F6F solid;
+			}
+			.iconfont {
+				font-size: 25px;
+				padding-right: 10px;
+				font-weight: bold;
+			}
+			.tap {
+				color: #6f6f6f;
+			}
+			.item_tap {
+				background-color: #eee;
+			}
+		</style>
+	</head>
+	<body>
+		<header>
+			<div id="back" tapmode="tap" class="button_l" onclick="api.closeWin()">
+				back
+			</div>
+			<div class="header">
+				Setting
+			</div>
+		</header>
+		<div id="main">
+			<div class="item upload" tapmode="item_tap" onclick="inputPassword()">
+				<i class="iconfont icon-upload"></i>Data transfer
+			</div>
+			<div class="item download" tapmode="item_tap" onclick="jumpToRecovery()">
+				<i class="iconfont icon-download"></i>Data recovery
+			</div>
+			<div class="item delete" tapmode="item_tap" onclick="deleteAll()">
+				<i class="iconfont icon-delete"></i>Clear data
+			</div>
+			<div class="item staff" tapmode="item_tap" onclick="jumpToStaff()">
+				<i class="iconfont icon-person2"></i>Staff
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/indexeddb.js"></script>
+	<script type="text/javascript">
+		apiready = function() {
+			$api.fixStatusBar($api.dom('header'));
+		};
+		function deleteAll() {
+			api.confirm({
+				title : 'Sure to delete all note?',
+				msg : '>>- unrecoverable -<<',
+				buttons : ['yes', 'no']
+			}, function(ret, err) {
+				var btnindex = ret.buttonIndex;
+				if (btnindex === 1) {
+					deleteObjectStore();
+					api.rebootApp();
+				}
+			});
+		}
+
+		function inputPassword() {
+			api.prompt({
+				buttons : ['确定', '取消'],
+				title : 'WARNING',
+				msg : 'Enter password to download notes in other devices.After uploading,local notes will be all deleted.',
+			}, function(ret, err) {
+				var index = ret.buttonIndex;
+				var password = ret.text;
+				if (index == 1) {
+					if(/^\w+$/.test(password)){
+						dataTransfer(password);
+					}else{
+						alert('The password can only include English letters or numbers');
+					}
+				}
+			});
+		}
+
+		function dataTransfer(password) {
+			var model = api.require('model');
+			model.config({
+				appKey : '3E57B561-7909-7C03-A8A1-4B7E402B80D9',
+				host : 'https://d.apicloud.com'
+			});
+			getDataAll(function(data) {
+				model.insert({//上传数据
+					class : 'data_transfer',
+					value : {
+						data : data.data,
+						password : password
+					}
+				}, function(ret, err) {
+					if (ret) {
+						var id = ret.id;
+						var clipBoard = api.require('clipBoard');
+						//复制到剪贴板
+						clipBoard.set({
+							value : 'id:' + id + ' ' + 'password:' + password
+						}, function(ret, err) {
+							if (ret) {
+								alert('id:' + id + ' ' + '\npassword:' + password+'\n\nPassword and id has been copied to the clipboard.');
+								deleteObjectStore();
+								api.rebootApp();
+							}
+						});
+					} else {
+						alert(JSON.stringify(err));
+					}
+				});
+			});
+		}
+
+		function jumpToRecovery() {
+			api.openWin({
+				name : 'recovery',
+				url : 'w_recovery.html'
+			});
+		}
+
+		function jumpToStaff() {
+			api.openWin({
+				name : 'staff',
+				url : 'w_staff.html'
+			});
+		}
+	</script>
+</html>
