@@ -10,7 +10,10 @@ You need to understand yourself more.
 ask yourself        
 answer yourself     
 next week or next month.    
-Maybe there is a completely different feeling.
+Maybe there is a completely different feeling.    
+
+Development platform : APIcloud
+Author : SSShooter
 
 不要懒，记录下瞬间的灵感   
 同时自动获取记录时的时间地点气温天气             
