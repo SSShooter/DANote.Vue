@@ -2,23 +2,23 @@
 DANote with Vue.js    
 ### Talk with inspiration             
 Don't be lazy.Write down your inspiration.    
-And automatically access the weather information and location.
-Write down in first time，it doesn't have to be too detailed.
-Supple your note when you have time. 
+And automatically access the weather information and location.               
+Write down in first time，it doesn't have to be too detailed.                  
+Supple your note when you have time.           
    
-### Talk to yourself        
+### Talk with yourself        
 You need to understand yourself more.       
 ask yourself        
 answer yourself     
 next week or next month.    
-Maybe there is a completely different feeling.    
+Maybe there is a completely different feeling.     
    
-### about
+### about          
 Development platform : APIcloud        
 Library : Vue.js animate.css         
 Data storage : indexedDB               
-Author : SSShooter
-
+Author : SSShooter           
+            
 不要懒，记录下瞬间的灵感   
 同时自动获取记录时的时间地点气温天气             
 （完美满足细节强迫症患者）          
