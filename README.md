@@ -1,4 +1,5 @@
 # DANote.Vue
+![](about/icon_round.png)             
 DANote with Vue.js    
 ### Talk with inspiration             
 Don't be lazy.Write down your inspiration.    
